@@ -1,7 +1,5 @@
 package org.sysimc.model;
 
-import java.text.DecimalFormat;
-
 public class Pessoa {
     private static int proximoId = 1;
     private int id;
@@ -23,6 +21,10 @@ public class Pessoa {
         this.peso = peso;
         this.imc = imc;
         this.classificacao = classificacao;
+    }
+
+    public static void setProximoId(int valor) {
+        proximoId = valor;
     }
 
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

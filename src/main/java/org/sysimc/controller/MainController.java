@@ -18,6 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import javafx.scene.control.Alert;
+import org.sysimc.utils.ArquivoUtil;
+import java.io.IOException;
+
 public class MainController implements Initializable {
     // VARIAVEIS CAIXA DE TEXTO TEXTFIELD
     @FXML
@@ -71,19 +75,60 @@ public class MainController implements Initializable {
     // EVENTOS
     @FXML
     public void onClickCalcularIMC(){
-        lerFormulario();
-        this.pessoa.classificacaoIMC();
-        exibirClassificacaoIMC();
-        exibirClassificacaoIMC();
-        System.out.println(this.pessoa.toString());
+        try {
+            lerFormulario();
+            this.pessoa.classificacaoIMC();
+            exibirClassificacaoIMC();
+        } catch (NumberFormatException e) {
+            mostrarErro("Peso e altura devem ser números válidos (ex.: 70 e 1.75).");
+        } catch (IllegalArgumentException e) {
+            mostrarErro(e.getMessage());
+        }
     }
+
     @FXML
     public void onClickSalvarIMC(){
-        lerFormulario();
-        this.pessoa.classificacaoIMC();
-        this.listaPessoas.add(this.pessoa);
-        atualizarTableView();
-        this.pessoa = new Pessoa();
+        try {
+            lerFormulario();
+            this.pessoa.classificacaoIMC();
+            int maiorId = this.listaPessoas.stream().mapToInt(Pessoa::getId).max().orElse(0);
+            this.pessoa.setId(maiorId + 1);
+            this.listaPessoas.add(this.pessoa);
+
+            ArquivoUtil.salvar(this.listaPessoas);
+            atualizarTableView();
+
+            this.pessoa = new Pessoa();
+        } catch (NumberFormatException e) {
+            mostrarErro("Peso e altura devem ser números válidos (ex.: 70 e 1.75).");
+        } catch (IllegalArgumentException e) {
+            mostrarErro(e.getMessage());
+        } catch (IOException e) {
+            mostrarErro("Não foi possível salvar o arquivo: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    public void onClickCarregar(){
+        try {
+            this.listaPessoas = ArquivoUtil.carregar();
+
+            int maiorId = this.listaPessoas.stream().mapToInt(Pessoa::getId).max().orElse(0);
+            Pessoa.setProximoId(maiorId + 1);   // próximos IDs continuam depois do último
+            this.pessoa = new Pessoa();
+
+            atualizarTableView();
+        } catch (IOException e) {
+            mostrarErro("Não foi possível ler o arquivo: " + e.getMessage());
+        }
+    }
+
+    private void mostrarErro(String mensagem) {
+        Alert alerta = new Alert(Alert.AlertType.ERROR);
+        alerta.setTitle("Erro");
+        alerta.setHeaderText(null);
+        alerta.setContentText(mensagem);
+        alerta.showAndWait();
     }
 
     @FXML
@@ -97,11 +142,25 @@ public class MainController implements Initializable {
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     // FORMULARIO
     public void lerFormulario(){
-        this.pessoa.setNome( txtNome.getText() );
-        this.pessoa.setPeso( Float.parseFloat(txtPeso.getText()) );
-        this.pessoa.setAltura( Float.parseFloat(txtAltura.getText()) );
+        String nome = txtNome.getText().trim();
+        float peso = Float.parseFloat(txtPeso.getText().trim().replace(",", "."));
+        float altura = Float.parseFloat(txtAltura.getText().trim().replace(",", "."));
 
+        if (altura > 3) {
+            throw new IllegalArgumentException("Informe a altura em metros (ex.: 1.75).");
+        }
+        if (nome.isEmpty()) {
+            throw new IllegalArgumentException("Informe o nome.");
+        }
+        if (peso <= 0 || altura <= 0) {
+            throw new IllegalArgumentException("Peso e altura devem ser maiores que zero.");
+        }
+
+        this.pessoa.setNome(nome);
+        this.pessoa.setPeso(peso);
+        this.pessoa.setAltura(altura);
     }
+
     public void exibirClassificacaoIMC(){
         DecimalFormat df = new DecimalFormat("#0.00");
         lbIMC.setText(df.format(this.pessoa.getImc()));

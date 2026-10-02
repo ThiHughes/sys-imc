@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.sysimc.controller.MainController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.sysimc.controller.MainController">
     <children>
         <MenuBar>
             <menus>
@@ -100,6 +100,14 @@
                               <Cursor fx:constant="HAND" />
                            </cursor>
                                 </Button>
+                        <Button mnemonicParsing="false" onAction="#onClickCarregar" prefHeight="26.0" prefWidth="41.0" text="💾" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets left="4.0" />
+                           </HBox.margin>
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
+                        </Button>
                             </children>
                             <VBox.margin>
                                 <Insets bottom="10.0" top="10.0" />
